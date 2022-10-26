@@ -29,14 +29,8 @@ hello_world_dag = DAG('hello_world_dag',
 def print_hello():
 		return 'Hello World!'
 
-# Creating first task
-start_task = DummyOperator(task_id='start_task', dag=hello_world_dag)
-
-# Creating second task
+# Creating a task
 hello_world_task = PythonOperator(task_id='hello_world_task', python_callable=print_hello, dag=hello_world_dag)
 
-# Creating third task
-end_task = DummyOperator(task_id='end_task', dag=hello_world_dag)
-
 # Set the order of execution of tasks. 
-start_task >> hello_world_task >> end_task
+hello_world_task
