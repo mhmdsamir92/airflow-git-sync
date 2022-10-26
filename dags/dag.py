@@ -7,6 +7,7 @@ from airflow import DAG
 # Operators
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
+from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 
 # initializing the default arguments
 default_args = {
@@ -20,7 +21,6 @@ default_args = {
 hello_world_dag = DAG('hello_world_dag',
 		default_args=default_args,
 		description='Hello World DAG',
-		schedule_interval='* * * * *', 
 		catchup=False,
 		tags=['example, helloworld']
 )
@@ -32,5 +32,18 @@ def print_hello():
 # Creating a task
 hello_world_task = PythonOperator(task_id='hello_world_task', python_callable=print_hello, dag=hello_world_dag)
 
+passing = KubernetesPodOperator(
+                          namespace='airflow',
+                          image="python:3.6",
+                          cmds=["python","-c"],
+                          arguments=["print('hello world')"],
+                          labels={"foo": "bar"},
+                          name="passing-test",
+                          task_id="passing-task",
+                          get_logs=True,
+                          dag=hello_world_dag
+                          )
+
+
 # Set the order of execution of tasks. 
-hello_world_task
+hello_world_task >> passing
